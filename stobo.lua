@@ -58,8 +58,8 @@ Database = {} do
   end
 end
 
--- Stock
-Stock = {} do
+-- Quote
+Quote = {} do
   local FATCOT = {
     ['0000001'] = 'COTAÇÃO UNITÁRIA',
     ['0001000'] = 'COTAÇÃO POR LOTE DE MIL AÇÕES'
@@ -146,8 +146,8 @@ Stock = {} do
     return number
   end
 
-  function Stock.new(line_string)
-    local self = setmetatable({}, { __index = Stock })
+  function Quote.new(line_string)
+    local self = setmetatable({}, { __index = Quote })
 
     self.TIPREG = trimZeroes(  line_string:sub(1, 2)  )
     self.DATAPR = trimZeroes( line_string:sub(3, 10) )
@@ -178,74 +178,94 @@ Stock = {} do
 
     return self
   end
+
+  function Quote:simple()
+    local simple_format = {
+      date   = self.DATAPR,
+      symbol = self.CODNEG,
+      open   = self.PREABE,
+      high   = self.PREMAX,
+      low    = self.PREMIN,
+      close  = self.PREULT,
+      volume = self.QUATOT
+    }
+
+    return simple_format
+  end
 end
 
--- StockList
-StockList = {} do
-  function StockList.new(data)
-    local self = setmetatable({}, { __index = StockList })
+-- Stocks
+Stocks = {} do
+  function Stocks.new(data)
+    io.write 'Proccessing database...'
+
+    local self = setmetatable({}, { __index = Stocks })
     
-    self.stocks = {}
+    self.quotes = {}
 
     if type(data) == 'string' then
-      print 'Proccessing stock list as string...'
+      print ' as string...'
 
       for line_string in data:gmatch('[^\r\n]+') do
         if not string.match(line_string, 'COTAHIST') then
-          table.insert(self.stocks, Stock.new(line_string))
+          table.insert(self.quotes, Quote.new(line_string):simple())
         end
       end
 
     elseif type(data) == 'table' then
-      print 'Proccessing stock list as table...'
+      print ' as table...'
 
-      self.stocks = data
+      self.quotes = data
     end
 
     return self
   end
 
-  function StockList:byCriteria(criteria)
+  function Stocks:byCriteria(criteria)
     print 'Filtering search...'
 
     local filtred_stocks = {}
 
-    for i,stock in pairs(self.stocks) do
-      if criteria(stock) then
-        table.insert(filtred_stocks, stock)
+    for i,quote in pairs(self.quotes) do
+      if criteria(quote) then
+        table.insert(filtred_stocks, quote)
       end
     end
 
-    return StockList.new(filtred_stocks)
+    return Stocks.new(filtred_stocks)
   end
 
-  function StockList:bySymbol(symbol)
-    local criteria = function(stock)
-      return stock.CODNEG == symbol
+  function Stocks:bySymbol(symbol)
+    local criteria = function(quote)
+      return quote.CODNEG == symbol or -- Complete format
+             quote.symbol == symbol    -- Simple format
     end
 
     return self:byCriteria(criteria)
   end
 
-  function StockList:byDate(date)
-    local criteria = function(stock)
-      return stock.DATAPR == date
+  function Stocks:byDate(date)
+    local criteria = function(quote)
+      return quote.DATAPR == date or -- Complete format
+             quote.date   == date    -- Simple format
     end
 
     return self:byCriteria(criteria)
   end
 
-  function StockList:byStartDate(date)
-    local criteria = function(stock)
-      return tonumber(stock.DATAPR) >= tonumber(date)
+  function Stocks:byStartDate(date)
+    local criteria = function(quote)
+      return quote.DATAPR and tonumber(quote.DATAPR) >= tonumber(date) or -- Complete format
+             quote.date   and tonumber(quote.date)   >= tonumber(date)    -- Simple format
     end
 
     return self:byCriteria(criteria)
   end
 
-  function StockList:byEndDate(date)
-    local criteria = function(stock)
-      return tonumber(stock.DATAPR) <= tonumber(date)
+  function Stocks:byEndDate(date)
+    local criteria = function(quote)
+      return quote.DATAPR and tonumber(quote.DATAPR) <= tonumber(date) or -- Complete format
+             quote.date   and tonumber(quote.date)   <= tonumber(date)    -- Simple format
     end
 
     return self:byCriteria(criteria)
@@ -254,17 +274,20 @@ end
 
 -- Main
 do
-  print 'Opening or downloading database...'
   local data_text = Database.get('2015')
-  print 'Proccessing database...'
-  local stockList = StockList.new(data_text)
+  local stockList = Stocks.new(data_text)
   print 'Done'
 
-  -- print(inspect( stocks:bySymbol('PETR4') ))
+  print 'All PETR4'
+  print(inspect( stockList:bySymbol('PETR4') ))
+
+  print 'All PETR4 from date 20150605'
   print(inspect( stockList:byDate('20150605'):bySymbol('PETR4') ))
+
+  print 'All PETR4 from istart date 20150301 and with MAX > 13'
   print(inspect( stockList:bySymbol('PETR4')
                           :byStartDate('20150301')
-                          :byCriteria(function(stock)
-                            return tonumber(stock.PREMAX) > 13
+                          :byCriteria(function(quote)
+                            return tonumber(quote.high) > 13
                           end)))
 end
