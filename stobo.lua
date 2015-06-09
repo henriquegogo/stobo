@@ -176,10 +176,6 @@ Quote = {} do
     self.CODISI = trimZeroes( line_string:sub(231, 242) )
     self.DISMES = trimZeroes( line_string:sub(243, 245) )
 
-    return self
-  end
-
-  function Quote:simple()
     local simple_format = {
       date   = self.DATAPR,
       symbol = self.CODNEG,
@@ -196,26 +192,25 @@ end
 
 -- Stocks
 Stocks = {} do
-  function Stocks.new(data)
-    io.write 'Proccessing database...'
+  function Stocks.new(data, symbol)
+    print 'Proccessing database...'
 
     local self = setmetatable({}, { __index = Stocks })
-    
-    self.quotes = {}
-
+   
     if type(data) == 'string' then
-      print ' as string...'
+      self.quotes = {}
 
       for line_string in data:gmatch('[^\r\n]+') do
         if not string.match(line_string, 'COTAHIST') then
-          table.insert(self.quotes, Quote.new(line_string):simple())
+          local quote = Quote.new(line_string)
+
+          table.insert(self.quotes, quote)
         end
       end
 
     elseif type(data) == 'table' then
-      print ' as table...'
-
       self.quotes = data
+      self.symbol = symbol
     end
 
     return self
@@ -224,21 +219,26 @@ Stocks = {} do
   function Stocks:byCriteria(criteria)
     print 'Filtering search...'
 
-    local filtred_stocks = {}
+    local filtred_quotes = {}
+    local symbol = ''
 
     for i,quote in pairs(self.quotes) do
-      if criteria(quote) then
-        table.insert(filtred_stocks, quote)
+      local validation = criteria(quote)
+      if validation then
+        table.insert(filtred_quotes, quote)
+        symbol = type(validation) == 'string' and validation or ''
       end
     end
 
-    return Stocks.new(filtred_stocks)
+    local stocks = Stocks.new(filtred_quotes, self.symbol)
+    if #symbol > 0 then stocks.symbol = symbol end
+    
+    return stocks
   end
 
   function Stocks:bySymbol(symbol)
     local criteria = function(quote)
-      return quote.CODNEG == symbol or -- Complete format
-             quote.symbol == symbol    -- Simple format
+      return quote.symbol == symbol and symbol
     end
 
     return self:byCriteria(criteria)
@@ -246,8 +246,7 @@ Stocks = {} do
 
   function Stocks:byDate(date)
     local criteria = function(quote)
-      return quote.DATAPR == date or -- Complete format
-             quote.date   == date    -- Simple format
+      return quote.date == date
     end
 
     return self:byCriteria(criteria)
@@ -255,8 +254,7 @@ Stocks = {} do
 
   function Stocks:byStartDate(date)
     local criteria = function(quote)
-      return quote.DATAPR and tonumber(quote.DATAPR) >= tonumber(date) or -- Complete format
-             quote.date   and tonumber(quote.date)   >= tonumber(date)    -- Simple format
+      return quote.date and tonumber(quote.date) >= tonumber(date)
     end
 
     return self:byCriteria(criteria)
@@ -264,8 +262,7 @@ Stocks = {} do
 
   function Stocks:byEndDate(date)
     local criteria = function(quote)
-      return quote.DATAPR and tonumber(quote.DATAPR) <= tonumber(date) or -- Complete format
-             quote.date   and tonumber(quote.date)   <= tonumber(date)    -- Simple format
+      return quote.date and tonumber(quote.date) <= tonumber(date)
     end
 
     return self:byCriteria(criteria)
@@ -274,15 +271,19 @@ end
 
 -- Main
 do
-  local data_text = Database.get('2015')
+  local data_text = Database.get('052015')
   local stockList = Stocks.new(data_text)
   print 'Done'
 
-  print 'All PETR4'
-  print(inspect( stockList:bySymbol('PETR4') ))
+  print 'All ABEV3 from date 20150605'
+  print(inspect( stockList:bySymbol('ABEV3') ))
 
   print 'All PETR4 from date 20150605'
-  print(inspect( stockList:byDate('20150605'):bySymbol('PETR4') ))
+  print(inspect( stockList:byDate('20150505'):bySymbol('PETR4') ))
+
+  print 'All from date 20150301 to date 20150505'
+  print(inspect( stockList:byStartDate('20150301'):byEndDate('20150505') ))
+
 
   print 'All PETR4 from istart date 20150301 and with MAX > 13'
   print(inspect( stockList:bySymbol('PETR4')
