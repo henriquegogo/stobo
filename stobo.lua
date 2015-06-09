@@ -193,11 +193,11 @@ end
 -- Stocks
 Stocks = {} do
   function Stocks.new(data, symbol)
-    print 'Proccessing database...'
-
     local self = setmetatable({}, { __index = Stocks })
    
     if type(data) == 'string' then
+      print 'Proccessing database...'
+      
       self.quotes = {}
 
       for line_string in data:gmatch('[^\r\n]+') do
