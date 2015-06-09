@@ -220,18 +220,18 @@ Stocks = {} do
     print 'Filtering search...'
 
     local filtred_quotes = {}
-    local symbol = ''
+    local symbol = false
 
     for i,quote in pairs(self.quotes) do
       local validation = criteria(quote)
       if validation then
         table.insert(filtred_quotes, quote)
-        symbol = type(validation) == 'string' and validation or ''
+        symbol = type(validation) == 'string' and validation
       end
     end
 
     local stocks = Stocks.new(filtred_quotes, self.symbol)
-    if #symbol > 0 then stocks.symbol = symbol end
+    if symbol then stocks.symbol = symbol end
     
     return stocks
   end
@@ -281,14 +281,11 @@ do
   print 'All PETR4 from date 20150605'
   print(inspect( stockList:byDate('20150505'):bySymbol('PETR4') ))
 
-  print 'All from date 20150301 to date 20150505'
-  print(inspect( stockList:byStartDate('20150301'):byEndDate('20150505') ))
-
-
-  print 'All PETR4 from istart date 20150301 and with MAX > 13'
-  print(inspect( stockList:bySymbol('PETR4')
-                          :byStartDate('20150301')
+  print 'All from date 20150301 to date 20150504'
+  print(inspect( stockList:byStartDate('20150301')
+                          :byEndDate('20150504')
                           :byCriteria(function(quote)
-                            return tonumber(quote.high) > 13
+                            local high = tonumber(quote.high)
+                            return high > 80 and high < 90
                           end)))
 end
