@@ -267,6 +267,26 @@ Stocks = {} do
 
     return self:byCriteria(criteria)
   end
+
+  function Stocks:SMA(period)
+    local sma_list = {}
+    local last_x = {}
+
+    for i,quote in pairs(self.quotes) do
+      table.insert(last_x, quote.close)
+      if #last_x > period then table.remove(last_x, 1) end
+
+      local price_sum = 0.0
+      for i,price in pairs(last_x) do
+        price_sum = price_sum + price
+      end
+      local sma = string.format('%.2f', price_sum / period)
+
+      table.insert(sma_list, sma)
+    end
+
+    return sma_list
+  end
 end
 
 -- Main
@@ -288,4 +308,10 @@ do
                             local high = tonumber(quote.high)
                             return high > 80 and high < 90
                           end)))
+
+  print('SMA: '.. inspect( stockList:bySymbol('LAME3'):SMA(3) ))
+
+  local lame3 = stockList:bySymbol('LAME3')
+  print('LAME3 length: '..#lame3.quotes)
+  print('LAME3 SMA length: '..#lame3:SMA(3))
 end
