@@ -23,6 +23,17 @@ Stocks = {} do
     return self
   end
 
+  function Stocks:symbols()
+    local symbols = {}
+
+    for i,quote in pairs(self.quotes) do
+      table.insert(symbols, quote.symbol)
+    end
+
+    return symbols
+  end
+
+  -- Filters
   function Stocks:byCriteria(criteria)
     print 'Filtering search...'
 
@@ -75,6 +86,7 @@ Stocks = {} do
     return self:byCriteria(criteria)
   end
 
+  -- Indicators
   function Stocks:SMA(period)
     local sma_list = {}
     local last_x = {}

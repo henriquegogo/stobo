@@ -1,9 +1,9 @@
 #!./bin/lua
 
 -- Load libraries
-local inspect = require 'inspect'
-local http = require 'socket.http'
-local zip = require 'zip'
+inspect = require 'inspect'
+http = require 'socket.http'
+zip = require 'zip'
 
 -- Load project files
 require 'app.database'
@@ -11,10 +11,15 @@ require 'app.quote'
 require 'app.stocks'
 
 -- Main
+--[[
 do
   local data_text = Database.get('052015')
   local stockList = Stocks.new(data_text)
+
   print 'Done'
+
+  print 'Symbols:'
+  print(inspect( stockList:symbols() ))
 
   print 'All ABEV3 from date 20150605'
   print(inspect( stockList:bySymbol('ABEV3') ))
@@ -36,3 +41,4 @@ do
   print('LAME3 length: '..#lame3.quotes)
   print('LAME3 SMA length: '..#lame3:SMA(3))
 end
+]]
