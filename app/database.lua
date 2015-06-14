@@ -24,7 +24,7 @@ Database = {} do
   end
 
   function readData(filename)
-    print 'Reading file...'
+    print 'Reading file from zip file...'
     local file = zip.openfile(database_folder..filename..'/'..filename..'.TXT')
     return file:read('*a')
   end

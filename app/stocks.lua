@@ -72,7 +72,7 @@ Stocks = {} do
       return quote.symbol == symbol and symbol
     end
 
-    return self:byCriteria(criteria)
+    return symbol and symbol ~= '' and self:byCriteria(criteria) or self
   end
 
   function Stocks:byDate(date)
@@ -80,7 +80,7 @@ Stocks = {} do
       return quote.date == date
     end
 
-    return self:byCriteria(criteria)
+    return date and date ~= '' and self:byCriteria(criteria) or self
   end
 
   function Stocks:byStartDate(date)
@@ -88,7 +88,7 @@ Stocks = {} do
       return quote.date and tonumber(quote.date) >= tonumber(date)
     end
 
-    return self:byCriteria(criteria)
+    return date and date ~= '' and self:byCriteria(criteria) or self
   end
 
   function Stocks:byEndDate(date)
@@ -96,7 +96,7 @@ Stocks = {} do
       return quote.date and tonumber(quote.date) <= tonumber(date)
     end
 
-    return self:byCriteria(criteria)
+    return date and date ~= '' and self:byCriteria(criteria) or self
   end
 
   -- Indicators

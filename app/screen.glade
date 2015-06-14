@@ -13,27 +13,8 @@
       <!-- column-name year -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">2015</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">2014</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">2013</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">2012</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">2011</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">2010</col>
-      </row>
-    </data>
   </object>
+  <object class="GtkTextBuffer" id="textbuffer"/>
   <object class="GtkApplicationWindow" id="main">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Stobo - Stock Robot</property>
@@ -74,11 +55,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="year">
+              <object class="GtkComboBox" id="years">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="model">listYears</property>
-                <signal name="changed" handler="year_changed_cb" swapped="no"/>
+                <signal name="changed" handler="on_year_changed" swapped="no"/>
                 <child>
                   <object class="GtkCellRendererText" id="yearCellrender"/>
                   <attributes>
@@ -114,6 +95,7 @@
                 <property name="max_width_chars">4</property>
                 <property name="placeholder_text" translatable="yes">MMDD</property>
                 <property name="input_purpose">digits</property>
+                <signal name="editing-done" handler="on_startDate_editing_done" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -143,6 +125,7 @@
                 <property name="max_width_chars">4</property>
                 <property name="placeholder_text" translatable="yes">MMDD</property>
                 <property name="input_purpose">digits</property>
+                <signal name="editing-done" handler="on_endDate_editing_done" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -168,7 +151,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="model">listStocks</property>
-                <signal name="changed" handler="stocks_changed_cb" swapped="no"/>
+                <signal name="changed" handler="on_stocks_changed" swapped="no"/>
                 <child>
                   <object class="GtkCellRendererText" id="stocksCellrender"/>
                   <attributes>
@@ -191,14 +174,22 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTextView" id="textview">
+          <object class="GtkScrolledWindow" id="scrolledwindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <object class="GtkTextView" id="textview">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="buffer">textbuffer</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
         <child>
@@ -217,7 +208,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>
