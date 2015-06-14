@@ -78,7 +78,7 @@ Quote = {} do
 
   function toDecimal(number)
     if #number > 0 then
-      number = string.format("%03d", number)
+      number = ('%03d'):format(number)
       number = number:sub(1, -3) ..'.'.. number:sub(-2)
     end
 

@@ -20,17 +20,30 @@ Stocks = {} do
       self.symbol = symbol
     end
 
+    print 'Database proccessed'
+
     return self
   end
 
   function Stocks:symbols()
-    local symbols = {}
+    print 'Getting symbols...'
 
+    local allSymbols = {}
     for i,quote in pairs(self.quotes) do
-      table.insert(symbols, quote.symbol)
+      allSymbols[quote.symbol] = quote.symbol
     end
+    
+    local symbolsAlphabetical = {}
+    for i,symbol in pairs(allSymbols) do
+      if #symbol == 5 then
+        table.insert(symbolsAlphabetical, symbol) 
+      end
+    end
+    table.sort(symbolsAlphabetical)
 
-    return symbols
+    print('Found '..#symbolsAlphabetical..' symbols')
+
+    return symbolsAlphabetical
   end
 
   -- Filters
@@ -99,7 +112,7 @@ Stocks = {} do
       for i,price in pairs(last_x) do
         price_sum = price_sum + price
       end
-      local sma = string.format('%.2f', price_sum / period)
+      local sma = ('%.2f'):format(price_sum / period)
 
       table.insert(sma_list, sma)
     end

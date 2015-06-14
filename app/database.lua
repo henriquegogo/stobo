@@ -41,7 +41,7 @@ Database = {} do
                           #date_string == 6 and 'M' or
                           #date_string == 8 and 'D'
 
-    local filename = string.format(filename_pattern, letter_abbrev, date_string)
+    local filename = (filename_pattern):format(letter_abbrev, date_string)
 
     if not fileExist(filename) then
       downloadData(filename)
