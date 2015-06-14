@@ -46,17 +46,44 @@ function fillStocksCombo()
   end
 end
 
+function displayOutput()
+  local selecterYear = years[yearsCombo:get_active() + 1]
+  local startDateValue = startDateEntry:get_text()
+  local endDateValue = endDateEntry:get_text() 
+  local selectedStockValue = stockList:symbols()[stocksCombo:get_active()]
+
+  local startDateWithYear = #startDateValue == 4 and selecterYear..startDateValue or ''
+  local endDateWithYear = #endDateValue == 4 and selecterYear..endDateValue or ''
+
+  filtredStockList = stockList:bySymbol(selectedStockValue)
+                              :byStartDate(startDateWithYear)
+                              :byEndDate(endDateWithYear)
+
+  local outputText = ''
+  for i,quote in ipairs(filtredStockList.quotes) do
+    outputText = outputText..quote.symbol..
+                 ' ('..quote.date..') -'..
+                 ' O:'..quote.open..
+                 ' H:'..quote.high..
+                 ' L:'..quote.low..
+                 ' C:'..quote.close..
+                 ' V:'..quote.volume..
+                 '\n'
+  end
+
+  textbuffer:set_text(outputText, #outputText)
+end
+
 print 'Bidding screen signals'
 builder:connect_signals {
   on_year_changed = function()
     startDateEntry:set_text('')
     endDateEntry:set_text('')
 
-    local selectedYearIndex = yearsCombo:get_active() + 1
-    local selecterYear = years[selectedYearIndex]
+    local selecterYear = years[yearsCombo:get_active() + 1]
 
     status('Obtendo dados...')
-    local dataText = Database.get('05'..selecterYear)
+    local dataText = Database.get(selecterYear)
 
     status('Processando banco de dados...')
     stockList = Stocks.new(dataText)
@@ -67,43 +94,18 @@ builder:connect_signals {
     status('Pronto')
   end,
 
-  on_startDate_changed = function()
-    local startDateValue = startDateEntry:get_text() 
-    local endDateValue = endDateEntry:get_text() 
-    local selectedStockValue = stockList:symbols()[stocksCombo:get_active() + 1]
-
-    filtredStockList = stockList:bySymbol(selectedStockValue)
-                                :byStartDate(startDateValue)
-                                :byEndDate(endDateValue)
-
-    local output = inspect(filtredStockList)
-    textbuffer:set_text(output, #output)
+  on_startDate_changed = function(widget)
+    local textValue = widget:get_text() 
+    if #textValue == 4 then displayOutput() end
   end,
 
-  on_endDate_changed = function()
-    local startDateValue = startDateEntry:get_text() 
-    local endDateValue = endDateEntry:get_text() 
-    local selectedStockValue = stockList:symbols()[stocksCombo:get_active() + 1]
-    
-    filtredStockList = stockList:bySymbol(selectedStockValue)
-                                :byStartDate(startDateValue)
-                                :byEndDate(endDateValue)
-
-    local output = inspect(filtredStockList)
-    textbuffer:set_text(output, #output)
+  on_endDate_changed = function(widget)
+    local textValue = widget:get_text() 
+    if #textValue == 4 then displayOutput() end
   end,
 
   on_stocks_changed = function()
-    local startDateValue = startDateEntry:get_text() 
-    local endDateValue = endDateEntry:get_text() 
-    local selectedStockValue = stockList:symbols()[stocksCombo:get_active() + 1]
-
-    filtredStockList = stockList:bySymbol(selectedStockValue)
-                                :byStartDate(startDateValue)
-                                :byEndDate(endDateValue)
-
-    local output = inspect(filtredStockList)
-    textbuffer:set_text(output, #output)
+    displayOutput()
   end
 }
 

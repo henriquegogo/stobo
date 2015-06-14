@@ -25,25 +25,26 @@ Stocks = {} do
     return self
   end
 
-  function Stocks:symbols()
+  function Stocks:symbols(byVolume)
     print 'Getting symbols...'
+
 
     local allSymbols = {}
     for i,quote in pairs(self.quotes) do
-      allSymbols[quote.symbol] = quote.symbol
-    end
-    
-    local symbolsAlphabetical = {}
-    for i,symbol in pairs(allSymbols) do
-      if #symbol == 5 then
-        table.insert(symbolsAlphabetical, symbol) 
+      if #quote.symbol == 5 then
+        allSymbols[quote.symbol] = quote.volume
       end
     end
-    table.sort(symbolsAlphabetical)
 
-    print('Found '..#symbolsAlphabetical..' symbols')
+    local symbolsOrdered = {}
+    for symbol,volume in pairs(allSymbols) do
+      table.insert(symbolsOrdered, symbol) 
+    end
+    table.sort(symbolsOrdered)
 
-    return symbolsAlphabetical
+    print('Found '..#symbolsOrdered..' symbols')
+
+    return symbolsOrdered
   end
 
   -- Filters
