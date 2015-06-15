@@ -28,19 +28,28 @@ Stocks = {} do
   function Stocks:symbols(byVolume)
     print 'Getting symbols...'
 
-
+    -- All Symbols
     local allSymbols = {}
     for i,quote in pairs(self.quotes) do
       if #quote.symbol == 5 then
-        allSymbols[quote.symbol] = quote.volume
+        allSymbols[quote.symbol] = { tonumber(quote.volume), quote.symbol }
       end
     end
 
-    local symbolsOrdered = {}
-    for symbol,volume in pairs(allSymbols) do
-      table.insert(symbolsOrdered, symbol) 
+    -- By Volume
+    local symbolsByVolume = {}
+    function compare(a,b) return a[1] > b[1] end
+    for symbol,object in pairs(allSymbols) do
+      table.insert(symbolsByVolume, object)
     end
-    table.sort(symbolsOrdered)
+    table.sort(symbolsByVolume, compare)
+
+    -- As Array
+    local symbolsOrdered = {}
+    for i,symbolAndVolume in ipairs(symbolsByVolume) do
+      table.insert(symbolsOrdered, symbolAndVolume[2]) 
+    end
+    if not byVolume then table.sort(symbolsOrdered) end
 
     print('Found '..#symbolsOrdered..' symbols')
 

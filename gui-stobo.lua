@@ -18,9 +18,11 @@ local startDateEntry = builder:get_object('startDate')
 local endDateEntry   = builder:get_object('endDate')
 local textview       = builder:get_object('textview')
 local textbuffer     = builder:get_object('textbuffer')
+local byVolumeCheck  = builder:get_object('byVolume')
 
 local stockList = {}
 local filtredStockList = {}
+local symbols = {}
 
 -- Fill years combo
 local years = { '2015', '2014', '2013', '2012', '2011' }
@@ -37,11 +39,13 @@ function status(text)
 end
 
 function fillStocksCombo()
-  listStocks:clear()
+  local listByVolume = byVolumeCheck:get_active()
+  symbols = filtredStockList:symbols(listByVolume)
 
+  listStocks:clear()
+  
   status('Montando exibição de ações...')
-  listStocks:append({ '' })
-  for i,symbol in pairs(filtredStockList:symbols()) do
+  for i,symbol in pairs(symbols) do
     listStocks:append({ symbol })
   end
 end
@@ -50,7 +54,7 @@ function displayOutput()
   local selecterYear = years[yearsCombo:get_active() + 1]
   local startDateValue = startDateEntry:get_text()
   local endDateValue = endDateEntry:get_text() 
-  local selectedStockValue = stockList:symbols()[stocksCombo:get_active()]
+  local selectedStockValue = symbols[stocksCombo:get_active() + 1]
 
   local startDateWithYear = #startDateValue == 4 and selecterYear..startDateValue or ''
   local endDateWithYear = #endDateValue == 4 and selecterYear..endDateValue or ''
@@ -83,12 +87,12 @@ builder:connect_signals {
     local selecterYear = years[yearsCombo:get_active() + 1]
 
     status('Obtendo dados...')
-    local dataText = Database.get(selecterYear)
+    local dataText = Database.get('05'..selecterYear)
 
     status('Processando banco de dados...')
     stockList = Stocks.new(dataText)
-    filtredStockList = stockList
-        
+    filtredStockList = stockList -- TODO: Identificar bug de selecionar ano novamente
+    status('Exibindo stocks no combo...')
     fillStocksCombo()
 
     status('Pronto')
@@ -106,6 +110,9 @@ builder:connect_signals {
 
   on_stocks_changed = function()
     displayOutput()
+  end,
+
+  on_byVolume_toggled = function()
   end
 }
 
