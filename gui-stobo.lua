@@ -30,12 +30,16 @@ for i,year in pairs(years) do
   listYears:append({ year })
 end
 
-function status(text)
-  print(text)
-  statusbar:push(0, text)
+function waitEventsPending()
   while Gtk.events_pending() do
     Gtk.main_iteration()
   end
+end
+
+function status(text)
+  print(text)
+  statusbar:push(0, text)
+  waitEventsPending()
 end
 
 function fillStocksCombo()
@@ -48,6 +52,7 @@ function fillStocksCombo()
   for i,symbol in ipairs(symbols) do
     listStocks:append({ symbol })
   end
+  status('Pronto')
 end
 
 function displayOutput()
@@ -63,17 +68,23 @@ function displayOutput()
                               :byStartDate(startDateWithYear)
                               :byEndDate(endDateWithYear)
 
+  print 'Preparing output format...'
+
   local outputText = ''
-  for i,quote in ipairs(filtredStockList.quotes) do
-    outputText = outputText..quote.symbol..
-                 ' ('..quote.date..') -'..
-                 ' O:'..quote.open..
-                 ' H:'..quote.high..
-                 ' L:'..quote.low..
-                 ' C:'..quote.close..
-                 ' V:'..quote.volume..
-                 '\n'
+  if selectedStockValue then
+    for i,quote in ipairs(filtredStockList.quotes) do
+      outputText = outputText..quote.symbol..
+                   ' ('..quote.date..') -'..
+                   ' O:'..quote.open..
+                   ' H:'..quote.high..
+                   ' L:'..quote.low..
+                   ' C:'..quote.close..
+                   ' V:'..quote.volume..
+                   '\n'
+    end
   end
+
+  print 'Displaying output...'
 
   textbuffer:set_text(outputText, #outputText)
 end
@@ -91,11 +102,9 @@ builder:connect_signals {
 
     status('Processando banco de dados...')
     stockList = Stocks.new(dataText)
-    filtredStockList = stockList -- TODO: Identificar bug de selecionar ano novamente
+    filtredStockList = stockList
     status('Exibindo stocks no combo...')
     fillStocksCombo()
-
-    status('Pronto')
   end,
 
   on_startDate_changed = function(widget)
