@@ -45,7 +45,7 @@ function fillStocksCombo()
   listStocks:clear()
   
   status('Montando exibição de ações...')
-  for i,symbol in pairs(symbols) do
+  for i,symbol in ipairs(symbols) do
     listStocks:append({ symbol })
   end
 end
@@ -113,6 +113,7 @@ builder:connect_signals {
   end,
 
   on_byVolume_toggled = function()
+    fillStocksCombo()
   end
 }
 
