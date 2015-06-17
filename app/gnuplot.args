@@ -2,7 +2,7 @@ set terminal gif size 1000,500
 set grid
 set xdata time
 set timefmt "%d/%m"
-set bars 1.5
+#set bars 1.5
 
 set palette defined (-1 'red', 1 'green')
 unset colorbox
