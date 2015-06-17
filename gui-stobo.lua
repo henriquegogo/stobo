@@ -98,7 +98,7 @@ builder:connect_signals {
     local selecterYear = years[yearsCombo:get_active() + 1]
 
     status('Obtendo dados...')
-    local dataText = Database.get('05'..selecterYear)
+    local dataText = Database.get(selecterYear)
 
     status('Processando banco de dados...')
     stockList = Stocks.new(dataText)
@@ -118,7 +118,9 @@ builder:connect_signals {
   end,
 
   on_stocks_changed = function()
-    displayOutput()
+    if stocksCombo:get_active() ~= -1 then
+      displayOutput()
+    end
   end,
 
   on_byVolume_toggled = function()

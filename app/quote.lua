@@ -122,7 +122,7 @@ Quote = {} do
       high   = self.PREMAX,
       low    = self.PREMIN,
       close  = self.PREULT,
-      volume = self.QUATOT
+      volume = self.VOLTOT
     }
 
     return simple_format
