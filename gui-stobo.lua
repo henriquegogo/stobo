@@ -16,6 +16,7 @@ local stocksCombo    = builder:get_object('stocks')
 local yearsCombo     = builder:get_object('years')
 local startDateEntry = builder:get_object('startDate')
 local endDateEntry   = builder:get_object('endDate')
+local graphImage     = builder:get_object('graphImage')
 local textview       = builder:get_object('textview')
 local textbuffer     = builder:get_object('textbuffer')
 local byVolumeCheck  = builder:get_object('byVolume')
@@ -71,6 +72,7 @@ function displayOutput()
   print 'Preparing output format...'
 
   local outputText = ''
+  local outputPlotValues = ''
   if selectedStockValue then
     for i,quote in ipairs(filtredStockList.quotes) do
       outputText = outputText..quote.symbol..
@@ -81,11 +83,24 @@ function displayOutput()
                    ' C:'..quote.close..
                    ' V:'..quote.volume..
                    '\n'
+
+      outputPlotValues = outputPlotValues..
+                   quote.date:sub(7,8)..'/'..quote.date:sub(5,6)..
+                   ' '..quote.open..
+                   ' '..quote.high..
+                   ' '..quote.low..
+                   ' '..quote.close..
+                   '\n'
     end
   end
 
   print 'Displaying output...'
-
+  local file = io.open('data/gnuplot.data', "w")
+  file:write(outputPlotValues)
+  file:close()
+  os.execute('gnuplot app/gnuplot.args')
+  
+  graphImage:set_from_file('data/plot.gif')
   textbuffer:set_text(outputText, #outputText)
 end
 
