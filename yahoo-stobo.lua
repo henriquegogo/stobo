@@ -63,8 +63,8 @@ Stock = {} do
 
     local url = (api_url):format(self.symbol, period_start, period_stop, interval)
     local json = https.request(url)
-    local table = cjson.decode(json)
-    local result = table.chart.result[1]
+    local jsontable = cjson.decode(json)
+    local result = jsontable.chart.result[1]
     local data = result.indicators.quote[1]
 
     for i,timestamp in ipairs(result.timestamp) do
@@ -75,7 +75,7 @@ Stock = {} do
                           data.close[i],
                           data.volume[i])
 
-      self.quotes[quote.datetime] = quote
+      table.insert(self.quotes, quote)
     end
 
     return self
@@ -85,8 +85,9 @@ end
 -- Main
 do
   local stock = Stock.new('TIMP3.SA'):get{ interval = '2m' }
-
-  for i,quote in pairs(stock.quotes) do
+  
+  print(stock.symbol)
+  for i,quote in ipairs(stock.quotes) do
     local result = ('%s - O: %.2f H: %.2f L: %.2f C: %.2f V: %s'):format(
                      quote.datetime, quote.open,
                      quote.high, quote.low,
