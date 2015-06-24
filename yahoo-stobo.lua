@@ -152,6 +152,6 @@ end
 
 -- Main
 do
-  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '5m', period_start = '20150619' }
+  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '2m', period_start = '20150622' }
   print( stock:output() )
 end
