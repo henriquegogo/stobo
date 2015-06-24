@@ -93,7 +93,6 @@ Stock = {} do
   end
 
   function Stock:output()
-    -- Candle: ——▆▆▆▆▆————
     local output = self.symbol..'\n'
 
     local highest_ever = 0
@@ -114,36 +113,33 @@ Stock = {} do
 
       local last_quote = self.quotes[i-1]
 
-      --[[
-      local close_color = last_quote and quote.close > last_quote.close and '%{greenbg}'
-                 or last_quote and quote.close < last_quote.close and '%{redbg}'
-                 or '%{black whitebg}'
-      ]]
-
       local candle_color = quote.close > quote.open and '%{green}'
                         or quote.close < quote.open and '%{red}'
                         or '%{white}'
 
       -- Candle design
+      local tick = { shadow = '—', fill = '█', null = '|' }
+      --    tick = { shadow = '█', fill = '█', null = '█' }
+
       local candle = '.'
       candle = candle..(' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
 
       if quote.close > quote.open then
-        candle = candle..('—'):rep( math.floor(quote.open *100 - quote.low  *100 + 0.5) )
-        candle = candle..('█'):rep( math.floor(quote.close*100 - quote.open *100 + 0.5) )
-        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.close*100 + 0.5) )
+        candle = candle..(tick.shadow):rep( math.floor(quote.open *100 - quote.low  *100 + 0.5) )
+        candle = candle..(tick.fill)  :rep( math.floor(quote.close*100 - quote.open *100 + 0.5) )
+        candle = candle..(tick.shadow):rep( math.floor(quote.high *100 - quote.close*100 + 0.5) )
         candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 + 0.5) )..'.'
 
       elseif quote.close < quote.open then
-        candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
-        candle = candle..('█'):rep( math.floor(quote.open *100 - quote.close*100 + 0.5) )
-        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+        candle = candle..(tick.shadow):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
+        candle = candle..(tick.fill)  :rep( math.floor(quote.open *100 - quote.close*100 + 0.5) )
+        candle = candle..(tick.shadow):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
         candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 + 0.5) )..'.'
 
       else
-        candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
-        candle = candle..'|'
-        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+        candle = candle..(tick.shadow):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
+        candle = candle..tick.null
+        candle = candle..(tick.shadow):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
         if quote.high ~= 0 then candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 - 0.5) )..'.' end
       end
 
