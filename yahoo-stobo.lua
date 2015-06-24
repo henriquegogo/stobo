@@ -45,7 +45,14 @@ end
 
 -- Stock
 Stock = {} do
-  function Stock.new(symbol)
+  local string_to_time = function(datetime_string)
+    return os.time{year = tonumber(datetime_string:sub(1,4)),
+                   month = tonumber(datetime_string:sub(5,6)),
+                   day = tonumber(datetime_string:sub(7,8)),
+                   hour = 0}
+  end
+
+  function Stock.symbol(symbol)
     local self = setmetatable({}, { __index = Stock })
     
     self.symbol = symbol
@@ -55,19 +62,11 @@ Stock = {} do
   end
 
   function Stock:get(options)
-    local period_start = options and options.period_start and os.time
-                            {year = tonumber(options.period_start:sub(1,4)),
-                            month = tonumber(options.period_start:sub(5,6)),
-                            day = tonumber(options.period_start:sub(7,8)),
-                            hour = 0}
-                            or os.time()
+    local period_start = options and options.period_start and
+                         string_to_time(options.period_start) or os.time()
 
-    local period_stop  = options and options.period_stop and os.time
-                            {year = tonumber(options.period_stop:sub(1,4)),
-                            month = tonumber(options.period_stop:sub(5,6)),
-                            day = tonumber(options.period_stop:sub(7,8)),
-                            hour = 23}
-                            or os.time()
+    local period_stop  = options and options.period_stop and 
+                         string_to_time(options.period_stop) or os.time()
 
     local interval     = options and options.interval or '15m'
 
@@ -90,32 +89,69 @@ Stock = {} do
 
     return self
   end
+
+  function Stock:output()
+    -- Candle: ——▆▆▆▆▆————
+    local output = self.symbol..'\n'
+
+    local lowest_ever = 99999999999
+    for i,quote in ipairs(self.quotes) do
+      if quote.low ~= 0 and quote.low < lowest_ever then
+        lowest_ever = quote.low
+      end
+    end 
+    
+    for i,quote in ipairs(self.quotes) do
+      local result = ('%s - O: %5s H: %5s L: %5s C: %5s V: %7s'):format(
+                       quote.datetime,
+                       ('%.2f'):format(quote.open),
+                       ('%.2f'):format(quote.high),
+                       ('%.2f'):format(quote.low),
+                       ('%.2f'):format(quote.close),
+                       quote.volume)
+
+      local last_quote = self.quotes[i-1]
+
+      --[[
+      local close_color = last_quote and quote.close > last_quote.close and '%{greenbg}'
+                 or last_quote and quote.close < last_quote.close and '%{redbg}'
+                 or '%{black whitebg}'
+      ]]
+
+      local candle_color = quote.close > quote.open and '%{green}'
+                        or quote.close < quote.open and '%{red}'
+                        or '%{white}'
+
+      -- Candle design
+      local candle = (' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
+
+      if quote.close > quote.open then
+        candle = candle..('—'):rep( math.floor(quote.open *100 - quote.low  *100 + 0.5) )
+        candle = candle..('▆'):rep( math.floor(quote.close*100 - quote.open *100 + 0.5) )
+        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.close*100 + 0.5) )
+
+      elseif quote.close < quote.open then
+        candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
+        candle = candle..('▆'):rep( math.floor(quote.open *100 - quote.close*100 + 0.5) )
+        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+
+      else
+        candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
+        candle = candle..'|'
+        candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+      end
+
+      output = output..result..' '..colors(candle_color..candle)..'\n'
+    end
+
+    output = output..'Lowest ever: '..lowest_ever
+
+    return output
+  end
 end
 
 -- Main
 do
-  local stock = Stock.new('TIMP3.SA'):get{ interval = '2m', period_start = '20150619' }
-  
-  print(stock.symbol)
-  for i,quote in ipairs(stock.quotes) do
-    local result = ('%s - O: %5s H: %5s L: %5s C: %5s V: %7s'):format(
-                     quote.datetime,
-                     ('%.2f'):format(quote.open),
-                     ('%.2f'):format(quote.high),
-                     ('%.2f'):format(quote.low),
-                     ('%.2f'):format(quote.close),
-                     quote.volume)
-
-    local last_quote = stock.quotes[i-1]
-
-    local close_color = last_quote and quote.close > last_quote.close and '%{green}'
-               or last_quote and quote.close < last_quote.close and '%{red}'
-               or '%{}'
-               
-    local candle_color = quote.close > quote.open and '%{greenbg}'
-                      or quote.close < quote.open and '%{redbg}'
-                      or '%{}'
-
-    print( colors(candle_color..result) )
-  end
+  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '5m', period_start = '20150619' }
+  print( stock:output() )
 end
