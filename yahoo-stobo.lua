@@ -62,8 +62,10 @@ Stock = {} do
   end
 
   function Stock:get(options)
+    local days_range   = options and options.days_range or 1
+
     local period_start = options and options.period_start and
-                         string_to_time(options.period_start) or os.time()
+                         string_to_time(options.period_start) or os.time() - 24*days_range*60*60
 
     local period_stop  = options and options.period_stop and 
                          string_to_time(options.period_stop) or os.time()
@@ -94,11 +96,11 @@ Stock = {} do
     -- Candle: ——▆▆▆▆▆————
     local output = self.symbol..'\n'
 
+    local highest_ever = 0
     local lowest_ever = 99999999999
     for i,quote in ipairs(self.quotes) do
-      if quote.low ~= 0 and quote.low < lowest_ever then
-        lowest_ever = quote.low
-      end
+      if quote.low ~= 0 and quote.low < lowest_ever then lowest_ever = quote.low end
+      if quote.high > highest_ever then highest_ever = quote.high end
     end 
     
     for i,quote in ipairs(self.quotes) do
@@ -123,28 +125,30 @@ Stock = {} do
                         or '%{white}'
 
       -- Candle design
-      local candle = (' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
+      local candle = '.'
+      candle = candle..(' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
 
       if quote.close > quote.open then
         candle = candle..('—'):rep( math.floor(quote.open *100 - quote.low  *100 + 0.5) )
-        candle = candle..('▆'):rep( math.floor(quote.close*100 - quote.open *100 + 0.5) )
+        candle = candle..('█'):rep( math.floor(quote.close*100 - quote.open *100 + 0.5) )
         candle = candle..('—'):rep( math.floor(quote.high *100 - quote.close*100 + 0.5) )
+        candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 + 0.5) )..'.'
 
       elseif quote.close < quote.open then
         candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
-        candle = candle..('▆'):rep( math.floor(quote.open *100 - quote.close*100 + 0.5) )
+        candle = candle..('█'):rep( math.floor(quote.open *100 - quote.close*100 + 0.5) )
         candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+        candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 + 0.5) )..'.'
 
       else
         candle = candle..('—'):rep( math.floor(quote.close*100 - quote.low  *100 + 0.5) )
         candle = candle..'|'
         candle = candle..('—'):rep( math.floor(quote.high *100 - quote.open *100 + 0.5) )
+        if quote.high ~= 0 then candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 - 0.5) )..'.' end
       end
 
       output = output..result..' '..colors(candle_color..candle)..'\n'
     end
-
-    output = output..'Lowest ever: '..lowest_ever
 
     return output
   end
@@ -152,6 +156,6 @@ end
 
 -- Main
 do
-  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '2m', period_start = '20150622' }
+  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '5m', days_range = 2 }
   print( stock:output() )
 end
