@@ -152,6 +152,9 @@ end
 
 -- Main
 do
-  local stock = Stock.symbol('TIMP3.SA'):get{ interval = '5m', days_range = 2 }
+  local symbol = (arg[1] or 'PETR4')..'.SA'
+  local interval = arg[2] or '5m'
+  local day_range = arg[3] or 2
+  local stock = Stock.symbol(symbol):get{ interval = interval, days_range = day_range }
   print( stock:output() )
 end
