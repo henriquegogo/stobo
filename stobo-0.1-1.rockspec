@@ -5,4 +5,4 @@ dependencies = {
   'lua ~> 5.1',
   'inspect', 'luasocket', 'luasec', 'lua-cjson', 'ansicolors'
 }
-build = { type = 'make' }
+build = { type = '' }
