@@ -62,7 +62,7 @@ Stock = {} do
   end
 
   function Stock:get(options)
-    local days_range   = options and options.days_range or 1
+    local days_range   = (options and options.days_range or 1) - 0.5
 
     local period_start = options and options.period_start and
                          string_to_time(options.period_start) or os.time() - 24*days_range*60*60
@@ -154,7 +154,7 @@ end
 do
   local symbol = (arg[1] or 'PETR4')..'.SA'
   local interval = arg[2] or '5m'
-  local day_range = arg[3] or 2
+  local day_range = arg[3] or 1
   local stock = Stock.symbol(symbol):get{ interval = interval, days_range = day_range }
   print( stock:output() )
 end
