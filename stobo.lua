@@ -149,6 +149,44 @@ Stock = {} do
     return output
   end
 
+  function Stock:outputBars()
+    local output = self.symbol..'\n'
+
+    local highest_ever = 0
+    local lowest_ever = 99999999999
+    for i,quote in ipairs(self.quotes) do
+      if quote.low ~= 0 and quote.low < lowest_ever then lowest_ever = quote.low end
+      if quote.high > highest_ever then highest_ever = quote.high end
+    end 
+    
+    for i,quote in ipairs(self.quotes) do
+      local result = ('%s - H: %5s L: %5s H-L: %4s V: %7s'):format(
+                       quote.datetime,
+                       ('%.2f'):format(quote.high),
+                       ('%.2f'):format(quote.low),
+                       ('%.2f'):format(quote.high - quote.low),
+                       quote.volume)
+
+      -- Candle design
+      local tick = { fill = '█', null = '|' }
+
+      local candle = '.'
+      candle = candle..(' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
+
+      if quote.high == quote.low then
+        candle = candle..tick.null
+        if quote.high ~= 0 then candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 - 0.5) )..'.' end
+      else
+        candle = candle..(tick.fill):rep( math.floor(quote.high*100 - quote.low*100 + 0.5) )
+        candle = candle..(' '):rep( math.floor(highest_ever*100 - quote.high*100 + 0.5) )..'.'
+      end
+
+      output = output..result..' '..candle..'\n'
+    end
+
+    return output
+  end
+
   function Stock:outputGogs()
     function replace_char(sentence, character, position)
       return sentence:sub(1, position-1) .. character .. sentence:sub(position+1)
@@ -226,6 +264,5 @@ do
   local interval = arg[2] or '1m'
   local day_range = arg[3] or 1
   local stock = Stock.symbol(symbol):get{ interval = interval, days_range = day_range }
-  print( stock:outputCandle() )
-  print( stock:outputGogs() )
+  print( stock:outputBars() )
 end
