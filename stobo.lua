@@ -92,7 +92,7 @@ Stock = {} do
     return self
   end
 
-  function Stock:output()
+  function Stock:outputCandle()
     local output = self.symbol..'\n'
 
     local highest_ever = 0
@@ -148,13 +148,84 @@ Stock = {} do
 
     return output
   end
+
+  function Stock:outputGogs()
+    function replace_char(sentence, character, position)
+      return sentence:sub(1, position-1) .. character .. sentence:sub(position+1)
+    end
+
+    local output = self.symbol..'\n'
+
+    local highest_ever = 0
+    local lowest_ever = 99999999999
+    -- Getting highest and lowest time range prices
+    for i,quote in ipairs(self.quotes) do
+      if quote.low ~= 0 and quote.low < lowest_ever then lowest_ever = quote.low end
+      if quote.high > highest_ever then highest_ever = quote.high end
+    end 
+    
+    -- Every five periods
+    for i=1,#self.quotes,5 do
+      local quote = self.quotes[i]
+
+      -- Get last 5 values
+      local highest5quotes = quote.high
+      local lowest5quotes = quote.low
+      local average5quotevalues = 0
+      for z=i,i-4,-1 do
+        local currentQuote = self.quotes[z]
+        if currentQuote then
+          if currentQuote.low ~= 0 and currentQuote.low < lowest5quotes then
+            lowest5quotes = currentQuote.low
+          end
+          if currentQuote.high > highest5quotes then
+            highest5quotes = currentQuote.high
+          end
+
+          average5quotevalues = average5quotevalues +
+                                currentQuote.open + currentQuote.high +
+                                currentQuote.low + currentQuote.close
+        end
+      end
+      average5quotevalues = average5quotevalues / 20 
+
+      local result = ('%s - H: %5s L: %5s A: %5s V: %7s'):format(
+                       quote.datetime,
+                       ('%.2f'):format(highest5quotes),
+                       ('%.2f'):format(lowest5quotes),
+                       ('%.2f'):format(average5quotevalues),
+                       quote.volume)
+
+      -- Candle design
+      local tick = { null = '|', fill = '-', average = 'X' }
+      local candle = '.'
+
+      candle = candle..(' '):rep( math.floor(lowest5quotes*100 - lowest_ever*100) )
+      
+      if highest5quotes == lowest5quotes then
+        candle = candle..tick.null
+      else
+        candle = candle..(tick.fill):rep( math.floor(highest5quotes*100 - lowest5quotes*100) )
+      end
+
+      candle = candle..(' '):rep( math.floor(highest_ever*100 - highest5quotes*100) )..'.'
+      candle = replace_char(candle, tick.average, math.floor( average5quotevalues*100 - lowest_ever*100 ) + 2)
+
+      if quote.volume > 0 then
+        output = output..result..' '..candle..'\n'
+      end
+    end
+
+    return output
+  end
 end
 
 -- Main
 do
   local symbol = (arg[1] or 'PETR4')..'.SA'
-  local interval = arg[2] or '5m'
+  local interval = arg[2] or '1m'
   local day_range = arg[3] or 1
   local stock = Stock.symbol(symbol):get{ interval = interval, days_range = day_range }
-  print( stock:output() )
+  print( stock:outputCandle() )
+  print( stock:outputGogs() )
 end
