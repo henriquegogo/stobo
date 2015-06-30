@@ -168,7 +168,7 @@ Stock = {} do
                        quote.volume)
 
       -- Candle design
-      local tick = { fill = '█', null = '|' }
+      local tick = { fill = '[', null = '|' }
 
       local candle = '.'
       candle = candle..(' '):rep( math.floor(quote.low*100 - lowest_ever*100 + 0.5) )
