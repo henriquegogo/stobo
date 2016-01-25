@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
-//#include <cJSON/cJSON.h>
+#include <cJSON/cJSON.h>
 
 char *result;
 
@@ -29,9 +29,6 @@ int main(int argc, char const *argv[]) {
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, request_callback);
   curl_easy_perform(curl);
 
-  printf("%s\n", result);
-
-  /*
   cJSON *json_object = cJSON_Parse(result);
   json_object = cJSON_GetObjectItem(json_object, "chart");
   json_object = cJSON_GetObjectItem(json_object, "result");
@@ -41,7 +38,6 @@ int main(int argc, char const *argv[]) {
   printf("%s\n", json_object->valuestring);
 
   cJSON_Delete(json_object);
-  */
 
   free(result);
   curl_easy_cleanup(curl);
