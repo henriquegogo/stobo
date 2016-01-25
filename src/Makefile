@@ -1,2 +1,5 @@
+LIBS = $(wildcard libs/*/*.c)
+CFLAGS = -Ilibs -Wall -lm -lcurl
+
 all:
-	$(CC) -g main.c -o main -lcurl
+	$(CC) $(CFLAGS) -g -o main main.c $(LIBS)
