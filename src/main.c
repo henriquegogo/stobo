@@ -6,7 +6,7 @@
 
 struct Quotes {
   char symbol[12];
-  char currency[3];
+  char currency[4];
 };
 
 struct Response {
