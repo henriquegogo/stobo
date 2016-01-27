@@ -4,25 +4,24 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
-char *result;
-
 struct Quotes {
   char symbol[12];
   char currency[3];
 };
 
+struct Response {
+  char *data;
+  size_t size;
+};
+
 size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata) {
-  char *data = (char*)userdata;
-  if (strlen(data) == 0) strcpy(data, content);
-  else strcat(data, content);
-
   size_t length = size * nmemb;
-  size_t result_size = result ? strlen(result) * sizeof(char) : 0;
+  struct Response *result = (struct Response *)userdata;
 
-  result = realloc(result, result_size + length + 1);
-  memcpy(&result[result_size], content, length);
-  result_size += length;
-  result[result_size] = 0;
+  result->data = realloc(result->data, result->size + length + 1);
+  memcpy(&(result->data[result->size]), content, length);
+  result->size += length;
+  result->data[result->size] = 0;
 
   return length;
 }
@@ -48,33 +47,29 @@ struct Quotes parse_request_body(char *json_string) {
 }
 
 char* request_get(char *url) {
-  char *response_data = malloc(90900 * sizeof(char));
+  struct Response response;
+  response.data = malloc(1);
+  response.size = 0;
 
   CURL *curl;
   curl = curl_easy_init();
   curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
   curl_easy_setopt(curl, CURLOPT_URL, url);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, request_callback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, response_data);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
   curl_easy_perform(curl);
   curl_easy_cleanup(curl);
 
-  printf("Response data: %s\n", response_data);
-
-  free(response_data);
-
-  return result;
+  return response.data;
 }
 
 int main(int argc, char const *argv[]) {
   char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/PETR4.SA";
 
-  request_get(url);
-  struct Quotes quotes = parse_request_body(result);
+  char *response_data = request_get(url);
+  struct Quotes quotes = parse_request_body(response_data);
   printf("Symbol: %s\n", quotes.symbol);
   printf("Currency: %s\n", quotes.currency);
-
-  free(result);
 
   return 0;
 }
