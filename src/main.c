@@ -12,7 +12,10 @@ struct Quotes {
 };
 
 size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata) {
+  printf("userdata pointer: %p\n", userdata);
   char *data = (char*)userdata;
+  printf("data pointer: %p\n", data);
+  
   if (strlen(data) == 0) strcpy(data, "String");
   else strcat(data, "Again");
 
@@ -48,18 +51,20 @@ struct Quotes parse_request_body(char *json_string) {
 }
 
 char* request_get(char *url) {
-  char response_data[4096] = "";
+  char *response_data = malloc(1);
+  printf("response_data pointer: %p\n", response_data);
 
   CURL *curl;
   curl = curl_easy_init();
   curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
   curl_easy_setopt(curl, CURLOPT_URL, url);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, request_callback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, response_data);
   curl_easy_perform(curl);
   curl_easy_cleanup(curl);
 
   printf("Response data: %s\n", response_data);
+  printf("response_data final pointer: %p\n", response_data);
 
   return result;
 }
