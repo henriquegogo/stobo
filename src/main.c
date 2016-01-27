@@ -72,8 +72,11 @@ int main(int argc, char const *argv[]) {
 
   char *response_data = request_get(url);
   struct Quotes quotes = parse_request_body(response_data);
+  
   printf("Symbol: %s\n", quotes.symbol);
   printf("Currency: %s\n", quotes.currency);
+
+  free(response_data);
 
   return 0;
 }
