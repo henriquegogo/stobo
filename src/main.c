@@ -27,6 +27,8 @@ size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata
 }
 
 struct Quotes parse_request_body(char *json_string) {
+  printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
+
   struct Quotes result_struct;
 
   cJSON *json_object = cJSON_Parse(json_string);
@@ -47,6 +49,8 @@ struct Quotes parse_request_body(char *json_string) {
 }
 
 char* request_get(char *url) {
+  printf("Making a GET request for %s ...\n", url);
+
   struct Response response;
   response.data = malloc(1);
   response.size = 0;
