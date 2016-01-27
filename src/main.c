@@ -25,11 +25,8 @@ struct Quotes parse_request_body(char *json_string) {
   json_object = cJSON_GetArrayItem(json_object, 0);
   json_object = cJSON_GetObjectItem(json_object, "meta");
 
-  char *symbol = cJSON_GetObjectItem(json_object, "symbol")->valuestring;
-  char *currency = cJSON_GetObjectItem(json_object, "currency")->valuestring;
-
-  strcpy(result_struct.symbol, symbol);
-  strcpy(result_struct.currency, currency);
+  strcpy(result_struct.symbol, cJSON_GetObjectItem(json_object, "symbol")->valuestring);
+  strcpy(result_struct.currency, cJSON_GetObjectItem(json_object, "currency")->valuestring);
 
   cJSON_Delete(json_object);
 
