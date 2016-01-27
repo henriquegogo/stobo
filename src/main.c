@@ -14,18 +14,6 @@ struct Response {
   size_t size;
 };
 
-size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata) {
-  size_t length = size * nmemb;
-  struct Response *result = (struct Response *)userdata;
-
-  result->data = realloc(result->data, result->size + length + 1);
-  memcpy(&(result->data[result->size]), content, length);
-  result->size += length;
-  result->data[result->size] = 0;
-
-  return length;
-}
-
 struct Quotes parse_request_body(char *json_string) {
   printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
 
@@ -46,6 +34,18 @@ struct Quotes parse_request_body(char *json_string) {
   cJSON_Delete(json_object);
 
   return result_struct;
+}
+
+size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata) {
+  size_t length = size * nmemb;
+  struct Response *result = (struct Response *)userdata;
+
+  result->data = realloc(result->data, result->size + length + 1);
+  memcpy(&(result->data[result->size]), content, length);
+  result->size += length;
+  result->data[result->size] = 0;
+
+  return length;
 }
 
 char* request_get(char *url) {
