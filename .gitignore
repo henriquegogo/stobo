@@ -7,3 +7,5 @@ man/
 share/
 main
 main.exe
+.ycm_extra_conf.pyc
+
