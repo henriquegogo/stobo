@@ -59,6 +59,8 @@ flags = [
 # system include files. 
 #'-isystem',
 #'/usr/include/c++/5',
+'-isystem',
+'/usr/include',
 # You can add the specified directory to the search path for
 # include files. 
 #'-I',
