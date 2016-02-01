@@ -7,5 +7,6 @@ man/
 share/
 main
 main.exe
+main-standalone*
 .ycm_extra_conf.pyc
-
+*.so*
