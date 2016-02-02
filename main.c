@@ -4,9 +4,18 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
+struct Indicator {
+  int volume;
+  double low;
+  double high;
+  double open;
+  double close;
+};
+
 struct Quotes {
   char symbol[12];
   char currency[4];
+  struct Indicator indicators;
 };
 
 struct Response {
@@ -32,6 +41,21 @@ struct Quotes parse_request_body(char *json_string) {
 
   strcpy(result_struct.symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
   strcpy(result_struct.currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
+
+  result_struct.indicators.volume = cJSON_GetArrayItem (
+                                    cJSON_GetObjectItem(indicators_object, "volume"), 30)->valueint;
+
+  result_struct.indicators.low    = cJSON_GetArrayItem (
+                                    cJSON_GetObjectItem(indicators_object, "low"), 30)->valuedouble;
+
+  result_struct.indicators.high   = cJSON_GetArrayItem (
+                                    cJSON_GetObjectItem(indicators_object, "high"), 30)->valuedouble;
+
+  result_struct.indicators.open   = cJSON_GetArrayItem (
+                                    cJSON_GetObjectItem(indicators_object, "open"), 30)->valuedouble;
+
+  result_struct.indicators.close  = cJSON_GetArrayItem (
+                                    cJSON_GetObjectItem(indicators_object, "close"), 30)->valuedouble;
 
   cJSON_Delete(json_object);
 
@@ -77,6 +101,12 @@ int main(int argc, char const *argv[]) {
   
   printf("Symbol: %s\n", quotes.symbol);
   printf("Currency: %s\n", quotes.currency);
+
+  printf("Volume: %i\n", quotes.indicators.volume);
+  printf("Low: %.2f\n", quotes.indicators.low);
+  printf("High: %.2f\n", quotes.indicators.high);
+  printf("Open: %.2f\n", quotes.indicators.open);
+  printf("Close: %.2f\n", quotes.indicators.close);
 
   free(response_data);
 
