@@ -4,29 +4,29 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
-struct Indicator {
+typedef struct Indicator {
   int volume;
   double low;
   double high;
   double open;
   double close;
-};
+} Indicator;
 
-struct Quotes {
+typedef struct Quotes {
   char symbol[12];
   char currency[4];
-  struct Indicator indicators;
-};
+  Indicator indicators;
+} Quotes;
 
-struct Response {
+typedef struct Response {
   char *data;
   size_t size;
-};
+} Response;
 
 struct Quotes parse_request_body(char *json_string) {
   printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
 
-  struct Quotes result_struct;
+  Quotes result_struct;
 
   cJSON *json_object = cJSON_Parse(json_string);
   json_object = cJSON_GetObjectItem(json_object, "chart");
@@ -69,7 +69,7 @@ struct Quotes parse_request_body(char *json_string) {
 
 size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata) {
   size_t length = size * nmemb;
-  struct Response *result = (struct Response *)userdata;
+  Response *result = (Response *)userdata;
 
   result->data = realloc(result->data, result->size + length + 1);
   memcpy(&(result->data[result->size]), content, length);
@@ -82,7 +82,7 @@ size_t request_callback(char *content, size_t size, size_t nmemb, void *userdata
 char* request_get(char *url) {
   printf("Making a GET request for %s ...\n", url);
 
-  struct Response response;
+  Response response;
   response.data = malloc(1);
   response.size = 0;
 
@@ -102,7 +102,7 @@ int main(int argc, char const *argv[]) {
   char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/PETR4.SA";
 
   char *response_data = request_get(url);
-  struct Quotes quotes = parse_request_body(response_data);
+  Quotes quotes = parse_request_body(response_data);
   
   printf("Symbol: %s\n", quotes.symbol);
   printf("Currency: %s\n", quotes.currency);
