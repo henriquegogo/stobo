@@ -23,10 +23,15 @@ struct Quotes parse_request_body(char *json_string) {
   json_object = cJSON_GetObjectItem(json_object, "chart");
   json_object = cJSON_GetObjectItem(json_object, "result");
   json_object = cJSON_GetArrayItem(json_object, 0);
-  json_object = cJSON_GetObjectItem(json_object, "meta");
 
-  strcpy(result_struct.symbol, cJSON_GetObjectItem(json_object, "symbol")->valuestring);
-  strcpy(result_struct.currency, cJSON_GetObjectItem(json_object, "currency")->valuestring);
+  cJSON *meta_object = cJSON_GetObjectItem(json_object, "meta");
+
+  cJSON *indicators_object = cJSON_GetObjectItem(json_object, "indicators");
+  indicators_object = cJSON_GetObjectItem(indicators_object, "quote");
+  indicators_object = cJSON_GetArrayItem(indicators_object, 0);
+
+  strcpy(result_struct.symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
+  strcpy(result_struct.currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
 
   cJSON_Delete(json_object);
 
