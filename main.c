@@ -42,20 +42,25 @@ struct Quotes parse_request_body(char *json_string) {
   strcpy(result_struct.symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
   strcpy(result_struct.currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
 
-  result_struct.indicators.volume = cJSON_GetArrayItem (
-                                    cJSON_GetObjectItem(indicators_object, "volume"), 30)->valueint;
+  result_struct.indicators.volume =
+      cJSON_GetArrayItem (
+      cJSON_GetObjectItem(indicators_object, "volume"), 30)->valueint;
 
-  result_struct.indicators.low    = cJSON_GetArrayItem (
-                                    cJSON_GetObjectItem(indicators_object, "low"), 30)->valuedouble;
+  result_struct.indicators.low =
+      cJSON_GetArrayItem (
+      cJSON_GetObjectItem(indicators_object, "low"), 30)->valuedouble;
 
-  result_struct.indicators.high   = cJSON_GetArrayItem (
-                                    cJSON_GetObjectItem(indicators_object, "high"), 30)->valuedouble;
+  result_struct.indicators.high =
+      cJSON_GetArrayItem (
+      cJSON_GetObjectItem(indicators_object, "high"), 30)->valuedouble;
 
-  result_struct.indicators.open   = cJSON_GetArrayItem (
-                                    cJSON_GetObjectItem(indicators_object, "open"), 30)->valuedouble;
+  result_struct.indicators.open =
+      cJSON_GetArrayItem (
+      cJSON_GetObjectItem(indicators_object, "open"), 30)->valuedouble;
 
-  result_struct.indicators.close  = cJSON_GetArrayItem (
-                                    cJSON_GetObjectItem(indicators_object, "close"), 30)->valuedouble;
+  result_struct.indicators.close =
+      cJSON_GetArrayItem (
+      cJSON_GetObjectItem(indicators_object, "close"), 30)->valuedouble;
 
   cJSON_Delete(json_object);
 
