@@ -22,7 +22,6 @@ typedef struct Quotes {
   char currency[4];
   Indicator *indicators;
   size_t size;
-  
 } Quotes;
 
 void Quotes_add(Quotes *quotes, Indicator indicator) {
@@ -41,6 +40,7 @@ Quotes* Quotes_create(char *json_string) {
   printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
 
   Quotes *result_struct = malloc(sizeof(Quotes));
+  result_struct->size = 0;
 
   cJSON *json_object = cJSON_Parse(json_string);
   json_object = cJSON_GetObjectItem(json_object, "chart");
@@ -53,44 +53,26 @@ Quotes* Quotes_create(char *json_string) {
   indicators_object = cJSON_GetObjectItem(indicators_object, "quote");
   indicators_object = cJSON_GetArrayItem(indicators_object, 0);
 
+  cJSON *indicators_volume_array = cJSON_GetObjectItem(indicators_object, "volume");
+  cJSON *indicators_low_array    = cJSON_GetObjectItem(indicators_object, "low");
+  cJSON *indicators_high_array   = cJSON_GetObjectItem(indicators_object, "high");
+  cJSON *indicators_open_array   = cJSON_GetObjectItem(indicators_object, "open");
+  cJSON *indicators_close_array  = cJSON_GetObjectItem(indicators_object, "close");
+
   strcpy(result_struct->symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
   strcpy(result_struct->currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
-
+  
   Indicator indicator;
-  indicator.volume = 20000;
-  indicator.low = 4.13;
-  indicator.high = 4.15;
-  indicator.open = 4.12;
-  indicator.close = 5.41;
 
-  result_struct->size = 0;
-  Quotes_add(result_struct, indicator);
-  indicator.volume = 30000;
-  Quotes_add(result_struct, indicator);
-  indicator.volume = 50000;
-  Quotes_add(result_struct, indicator);
-
-  /*
-  result_struct.indicators.volume =
-      cJSON_GetArrayItem (
-      cJSON_GetObjectItem(indicators_object, "volume"), 30)->valueint;
-
-  result_struct.indicators.low =
-      cJSON_GetArrayItem (
-      cJSON_GetObjectItem(indicators_object, "low"), 30)->valuedouble;
-
-  result_struct.indicators.high =
-      cJSON_GetArrayItem (
-      cJSON_GetObjectItem(indicators_object, "high"), 30)->valuedouble;
-
-  result_struct.indicators.open =
-      cJSON_GetArrayItem (
-      cJSON_GetObjectItem(indicators_object, "open"), 30)->valuedouble;
-
-  result_struct.indicators.close =
-      cJSON_GetArrayItem (
-      cJSON_GetObjectItem(indicators_object, "close"), 30)->valuedouble;
-  */
+  int indicators_size = cJSON_GetArraySize(indicators_volume_array);
+  for (int i = 0; i < indicators_size; i++) {
+    indicator.volume = cJSON_GetArrayItem(indicators_volume_array, i)->valueint;
+    indicator.low    = cJSON_GetArrayItem(indicators_low_array, i)->valuedouble;
+    indicator.high   = cJSON_GetArrayItem(indicators_high_array, i)->valuedouble;
+    indicator.open   = cJSON_GetArrayItem(indicators_open_array, i)->valuedouble;
+    indicator.close  = cJSON_GetArrayItem(indicators_close_array, i)->valuedouble;
+    Quotes_add(result_struct, indicator);
+  }
 
   cJSON_Delete(json_object);
 
@@ -139,17 +121,15 @@ int main(int argc, char const *argv[]) {
 
   printf("Size: %zu\n", quotes->size);
 
-  printf("First indicator: %i\n", quotes->indicators[0].volume);
-  printf("Second indicator: %i\n", quotes->indicators[1].volume);
-  printf("Third indicator: %i\n", quotes->indicators[2].volume);
-
-  /*
-  printf("Volume: %i\n", quotes.indicators.volume);
-  printf("Low: %.2f\n", quotes.indicators.low);
-  printf("High: %.2f\n", quotes.indicators.high);
-  printf("Open: %.2f\n", quotes.indicators.open);
-  printf("Close: %.2f\n", quotes.indicators.close);
-  */
+  for (int i = 0; i < quotes->size; i++) {
+    printf("V: %i    \t| O: %.2f\t| H: %.2f\t| L: %.2f\t| C: %.2f\n",
+        quotes->indicators[i].volume,
+        quotes->indicators[i].open,
+        quotes->indicators[i].high,
+        quotes->indicators[i].low,
+        quotes->indicators[i].close
+    );
+  }
 
   Quotes_cleanup(quotes);
   free(response_data);
