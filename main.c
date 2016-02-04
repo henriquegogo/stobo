@@ -126,13 +126,13 @@ int main(int argc, char const *argv[]) {
 
   for (int i = 0; i < quotes->size; i++) {
     if (quotes->indicators[i].open != 0) {
-      printf("T: %lu | O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i\n",
-          quotes->indicators[i].timestamp,
+      printf("O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i    \t | %s",
           quotes->indicators[i].open,
           quotes->indicators[i].high,
           quotes->indicators[i].low,
           quotes->indicators[i].close,
-          quotes->indicators[i].volume
+          quotes->indicators[i].volume,
+          ctime(&quotes->indicators[i].timestamp)
       );
     }
   }
