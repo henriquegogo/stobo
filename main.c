@@ -37,7 +37,7 @@ void Quotes_cleanup(Quotes *quotes) {
   free(quotes);
 }
 
-Quotes* parse_request_body(char *json_string) {
+Quotes* Quotes_create(char *json_string) {
   printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
 
   Quotes *result_struct = malloc(sizeof(Quotes));
@@ -132,7 +132,7 @@ int main(int argc, char const *argv[]) {
   char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/PETR4.SA";
 
   char *response_data = request_get(url);
-  Quotes *quotes = parse_request_body(response_data);
+  Quotes *quotes = Quotes_create(response_data);
   
   printf("Symbol: %s\n", quotes->symbol);
   printf("Currency: %s\n", quotes->currency);
