@@ -1,5 +1,5 @@
 LIBS = $(wildcard libs/*/*.c)
-CFLAGS = -Ilibs -Wall -lm -lcurl
+CFLAGS = -std=c99 -Ilibs -Wall -lm -lcurl
 STANDALONEFLAGS = -Wl,-rpath=libs -Llibs
 
 all:
