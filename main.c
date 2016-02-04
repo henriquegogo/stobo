@@ -116,7 +116,7 @@ char* request_get(char *url) {
 }
 
 int main(int argc, char const *argv[]) {
-    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/PETR4.SA";
+    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X";
 
     char *response_data = request_get(url);
     Quotes *quotes = Quotes_create(response_data);
@@ -127,12 +127,12 @@ int main(int argc, char const *argv[]) {
 
     for (int i = 0; i < quotes->size; i++) {
         if (quotes->indicators[i].open != 0) {
-            printf("O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i    \t | %s",
+            printf("O:%.4f H:%.4f L:%.4f C:%.4f | %s",
                     quotes->indicators[i].open,
                     quotes->indicators[i].high,
                     quotes->indicators[i].low,
                     quotes->indicators[i].close,
-                    quotes->indicators[i].volume,
+                    /*quotes->indicators[i].volume,*/
                     ctime(&quotes->indicators[i].timestamp)
                   );
         }
