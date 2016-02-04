@@ -10,6 +10,7 @@ typedef struct Response {
 } Response;
 
 typedef struct Indicator {
+  int timestamp;
   int volume;
   double low;
   double high;
@@ -48,6 +49,7 @@ Quotes* Quotes_create(char *json_string) {
   json_object = cJSON_GetArrayItem(json_object, 0);
 
   cJSON *meta_object = cJSON_GetObjectItem(json_object, "meta");
+  cJSON *timestamp_array = cJSON_GetObjectItem(json_object, "timestamp");
 
   cJSON *indicators_object = cJSON_GetObjectItem(json_object, "indicators");
   indicators_object = cJSON_GetObjectItem(indicators_object, "quote");
@@ -64,13 +66,14 @@ Quotes* Quotes_create(char *json_string) {
   
   Indicator indicator;
 
-  int indicators_size = cJSON_GetArraySize(indicators_volume_array);
+  int indicators_size = cJSON_GetArraySize(timestamp_array);
   for (int i = 0; i < indicators_size; i++) {
-    indicator.volume = cJSON_GetArrayItem(indicators_volume_array, i)->valueint;
-    indicator.low    = cJSON_GetArrayItem(indicators_low_array, i)->valuedouble;
-    indicator.high   = cJSON_GetArrayItem(indicators_high_array, i)->valuedouble;
-    indicator.open   = cJSON_GetArrayItem(indicators_open_array, i)->valuedouble;
-    indicator.close  = cJSON_GetArrayItem(indicators_close_array, i)->valuedouble;
+    indicator.timestamp = cJSON_GetArrayItem(timestamp_array, i)->valueint;
+    indicator.volume    = cJSON_GetArrayItem(indicators_volume_array, i)->valueint;
+    indicator.low       = cJSON_GetArrayItem(indicators_low_array, i)->valuedouble;
+    indicator.high      = cJSON_GetArrayItem(indicators_high_array, i)->valuedouble;
+    indicator.open      = cJSON_GetArrayItem(indicators_open_array, i)->valuedouble;
+    indicator.close     = cJSON_GetArrayItem(indicators_close_array, i)->valuedouble;
     Quotes_add(result_struct, indicator);
   }
 
@@ -122,13 +125,16 @@ int main(int argc, char const *argv[]) {
   printf("Size: %zu\n", quotes->size);
 
   for (int i = 0; i < quotes->size; i++) {
-    printf("V: %i    \t| O: %.2f\t| H: %.2f\t| L: %.2f\t| C: %.2f\n",
-        quotes->indicators[i].volume,
-        quotes->indicators[i].open,
-        quotes->indicators[i].high,
-        quotes->indicators[i].low,
-        quotes->indicators[i].close
-    );
+    if (quotes->indicators[i].open != 0) {
+      printf("T: %i | O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i\n",
+          quotes->indicators[i].timestamp,
+          quotes->indicators[i].open,
+          quotes->indicators[i].high,
+          quotes->indicators[i].low,
+          quotes->indicators[i].close,
+          quotes->indicators[i].volume
+      );
+    }
   }
 
   Quotes_cleanup(quotes);
