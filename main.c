@@ -4,6 +4,11 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
+typedef struct Response {
+  char *data;
+  size_t size;
+} Response;
+
 typedef struct Indicator {
   int volume;
   double low;
@@ -17,18 +22,19 @@ typedef struct Quotes {
   char currency[4];
   Indicator *indicators;
   size_t size;
+  
 } Quotes;
 
-typedef struct Response {
-  char *data;
-  size_t size;
-} Response;
-
-void add_indicator(Quotes *quotes, Indicator indicator) {
+void Quotes_add(Quotes *quotes, Indicator indicator) {
   if (quotes->size == 0) quotes->indicators = malloc(sizeof(Indicator));
   quotes->size++;
   quotes->indicators = realloc(quotes->indicators, quotes->size * sizeof(Indicator));
   quotes->indicators[quotes->size - 1] = indicator;
+}
+
+void Quotes_cleanup(Quotes *quotes) {
+  free(quotes->indicators);
+  free(quotes);
 }
 
 Quotes* parse_request_body(char *json_string) {
@@ -58,11 +64,11 @@ Quotes* parse_request_body(char *json_string) {
   indicator.close = 5.41;
 
   result_struct->size = 0;
-  add_indicator(result_struct, indicator);
+  Quotes_add(result_struct, indicator);
   indicator.volume = 30000;
-  add_indicator(result_struct, indicator);
+  Quotes_add(result_struct, indicator);
   indicator.volume = 50000;
-  add_indicator(result_struct, indicator);
+  Quotes_add(result_struct, indicator);
 
   /*
   result_struct.indicators.volume =
@@ -145,8 +151,7 @@ int main(int argc, char const *argv[]) {
   printf("Close: %.2f\n", quotes.indicators.close);
   */
 
-  free(quotes->indicators);
-  free(quotes);
+  Quotes_cleanup(quotes);
   free(response_data);
 
   return 0;
