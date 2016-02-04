@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
@@ -10,7 +11,7 @@ typedef struct Response {
 } Response;
 
 typedef struct Indicator {
-  int timestamp;
+  time_t timestamp;
   int volume;
   double low;
   double high;
@@ -121,12 +122,11 @@ int main(int argc, char const *argv[]) {
   
   printf("Symbol: %s\n", quotes->symbol);
   printf("Currency: %s\n", quotes->currency);
-
   printf("Size: %zu\n", quotes->size);
 
   for (int i = 0; i < quotes->size; i++) {
     if (quotes->indicators[i].open != 0) {
-      printf("T: %i | O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i\n",
+      printf("T: %lu | O: %.2f | H: %.2f | L: %.2f | C: %.2f | V: %i\n",
           quotes->indicators[i].timestamp,
           quotes->indicators[i].open,
           quotes->indicators[i].high,
