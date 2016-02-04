@@ -55,6 +55,7 @@ Quotes* Quotes_create(char *json_string) {
     cJSON *indicators_object = cJSON_GetObjectItem(json_object, "indicators");
     indicators_object = cJSON_GetObjectItem(indicators_object, "quote");
     indicators_object = cJSON_GetArrayItem(indicators_object, 0);
+    // TODO: Verify if indicators_object is NULL (begin of session)
 
     cJSON *indicators_volume_array = cJSON_GetObjectItem(indicators_object, "volume");
     cJSON *indicators_low_array    = cJSON_GetObjectItem(indicators_object, "low");
