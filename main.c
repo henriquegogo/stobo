@@ -15,7 +15,8 @@ typedef struct Indicator {
 typedef struct Quotes {
   char symbol[12];
   char currency[4];
-  Indicator indicators;
+  Indicator *indicators;
+  size_t size;
 } Quotes;
 
 typedef struct Response {
@@ -23,10 +24,17 @@ typedef struct Response {
   size_t size;
 } Response;
 
-struct Quotes parse_request_body(char *json_string) {
+void add_indicator(Quotes *quotes, Indicator indicator) {
+  if (quotes->size == 0) quotes->indicators = malloc(sizeof(Indicator));
+  quotes->size++;
+  quotes->indicators = realloc(quotes->indicators, quotes->size * sizeof(Indicator));
+  quotes->indicators[quotes->size - 1] = indicator;
+}
+
+Quotes* parse_request_body(char *json_string) {
   printf("Parsing data for a string with %zu characters.\n", strlen(json_string));
 
-  Quotes result_struct;
+  Quotes *result_struct = malloc(sizeof(Quotes));
 
   cJSON *json_object = cJSON_Parse(json_string);
   json_object = cJSON_GetObjectItem(json_object, "chart");
@@ -39,9 +47,24 @@ struct Quotes parse_request_body(char *json_string) {
   indicators_object = cJSON_GetObjectItem(indicators_object, "quote");
   indicators_object = cJSON_GetArrayItem(indicators_object, 0);
 
-  strcpy(result_struct.symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
-  strcpy(result_struct.currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
+  strcpy(result_struct->symbol, cJSON_GetObjectItem(meta_object, "symbol")->valuestring);
+  strcpy(result_struct->currency, cJSON_GetObjectItem(meta_object, "currency")->valuestring);
 
+  Indicator indicator;
+  indicator.volume = 20000;
+  indicator.low = 4.13;
+  indicator.high = 4.15;
+  indicator.open = 4.12;
+  indicator.close = 5.41;
+
+  result_struct->size = 0;
+  add_indicator(result_struct, indicator);
+  indicator.volume = 30000;
+  add_indicator(result_struct, indicator);
+  indicator.volume = 50000;
+  add_indicator(result_struct, indicator);
+
+  /*
   result_struct.indicators.volume =
       cJSON_GetArrayItem (
       cJSON_GetObjectItem(indicators_object, "volume"), 30)->valueint;
@@ -61,6 +84,7 @@ struct Quotes parse_request_body(char *json_string) {
   result_struct.indicators.close =
       cJSON_GetArrayItem (
       cJSON_GetObjectItem(indicators_object, "close"), 30)->valuedouble;
+  */
 
   cJSON_Delete(json_object);
 
@@ -102,17 +126,27 @@ int main(int argc, char const *argv[]) {
   char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/PETR4.SA";
 
   char *response_data = request_get(url);
-  Quotes quotes = parse_request_body(response_data);
+  Quotes *quotes = parse_request_body(response_data);
   
-  printf("Symbol: %s\n", quotes.symbol);
-  printf("Currency: %s\n", quotes.currency);
+  printf("Symbol: %s\n", quotes->symbol);
+  printf("Currency: %s\n", quotes->currency);
 
+  printf("Size: %zu\n", quotes->size);
+
+  printf("First indicator: %i\n", quotes->indicators[0].volume);
+  printf("Second indicator: %i\n", quotes->indicators[1].volume);
+  printf("Third indicator: %i\n", quotes->indicators[2].volume);
+
+  /*
   printf("Volume: %i\n", quotes.indicators.volume);
   printf("Low: %.2f\n", quotes.indicators.low);
   printf("High: %.2f\n", quotes.indicators.high);
   printf("Open: %.2f\n", quotes.indicators.open);
   printf("Close: %.2f\n", quotes.indicators.close);
+  */
 
+  free(quotes->indicators);
+  free(quotes);
   free(response_data);
 
   return 0;
