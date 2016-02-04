@@ -125,18 +125,20 @@ int main(int argc, char const *argv[]) {
     printf("Currency: %s\n", quotes->currency);
     printf("Size: %zu\n", quotes->size);
 
+    char subtitle[] = "OPEN   HIGH   LOW    CLOSE";
+    printf("%s\n", subtitle);
     for (int i = 0; i < quotes->size; i++) {
         if (quotes->indicators[i].open != 0) {
-            printf("O:%.4f H:%.4f L:%.4f C:%.4f | %s",
+            printf("%.4f %.4f %.4f %.4f | %s",
                     quotes->indicators[i].open,
                     quotes->indicators[i].high,
                     quotes->indicators[i].low,
                     quotes->indicators[i].close,
-                    /*quotes->indicators[i].volume,*/
                     ctime(&quotes->indicators[i].timestamp)
                   );
         }
     }
+    printf("%s\n", subtitle);
 
     Quotes_cleanup(quotes);
     free(response_data);
