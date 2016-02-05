@@ -116,7 +116,7 @@ char* request_get(char *url) {
 }
 
 int main(int argc, char const *argv[]) {
-    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X";
+    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X?period1=1454583600&period2=1454616300&interval=5m";
 
     char *response_data = request_get(url);
     Quotes *quotes = Quotes_create(response_data);
