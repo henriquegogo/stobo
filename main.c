@@ -55,6 +55,7 @@ Quotes* Quotes_create(char *json_string) {
     result_struct->size = 0;
 
     cJSON *json_object = cJSON_Parse(json_string);
+    free(json_string);
     json_object = cJSON_GetObjectItem(json_object, "chart");
     json_object = cJSON_GetObjectItem(json_object, "result");
     json_object = cJSON_GetArrayItem(json_object, 0);
@@ -125,12 +126,7 @@ char* request_get(char *url) {
     return response.data;
 }
 
-int main(int argc, char const *argv[]) {
-    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X?period1=1454583600&period2=1454616300&interval=5m";
-
-    char *response_data = request_get(url);
-    Quotes *quotes = Quotes_create(response_data);
-
+void print_data(Quotes *quotes) {
     printf("Symbol: %s\n", quotes->symbol);
     printf("Currency: %s\n", quotes->currency);
     printf("Size: %zu\n", quotes->size);
@@ -161,8 +157,17 @@ int main(int argc, char const *argv[]) {
 
     printf("%s\n", subtitle);
 
+}
+
+int main(int argc, char const *argv[]) {
+    char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X?period1=1454583600&period2=1454616300&interval=1m";
+
+    char *response_data = request_get(url);
+    Quotes *quotes = Quotes_create(response_data);
+
+    print_data(quotes);
+
     Quotes_cleanup(quotes);
-    free(response_data);
 
     return 0;
 }
