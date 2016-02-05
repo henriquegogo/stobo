@@ -5,6 +5,16 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
+#define KNRM   "\x1B[0m"
+#define KRED   "\x1B[31m"
+#define KGRN   "\x1B[32m"
+#define KYEL   "\x1B[33m"
+#define KBLU   "\x1B[34m"
+#define KMAG   "\x1B[35m"
+#define KCYN   "\x1B[36m"
+#define KWHT   "\x1B[37m"
+#define KRESET "\033[0m"
+
 typedef struct Response {
     char *data;
     size_t size;
@@ -127,17 +137,28 @@ int main(int argc, char const *argv[]) {
 
     char subtitle[] = "| OPEN | HIGH | LOW  | CLOSE|";
     printf("%s\n", subtitle);
+
     for (int i = 0; i < quotes->size; i++) {
         if (quotes->indicators[i].open != 0) {
-            printf("|%.4f|%.4f|%.4f|%.4f| %s",
+            char color[10];
+            if (quotes->indicators[i].open > quotes->indicators[i].close) {
+                strcpy(color, KRED);
+            } else {
+                strcpy(color, KGRN);
+            }
+
+            printf("%s|%.4f|%.4f|%.4f|%.4f|%s %s",
+                    color,
                     quotes->indicators[i].open,
                     quotes->indicators[i].high,
                     quotes->indicators[i].low,
                     quotes->indicators[i].close,
+                    KRESET,
                     ctime(&quotes->indicators[i].timestamp)
                   );
         }
     }
+
     printf("%s\n", subtitle);
 
     Quotes_cleanup(quotes);
