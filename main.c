@@ -5,16 +5,6 @@
 #include <curl/curl.h>
 #include <cJSON/cJSON.h>
 
-#define KNRM   "\x1B[0m"
-#define KRED   "\x1B[31m"
-#define KGRN   "\x1B[32m"
-#define KYEL   "\x1B[33m"
-#define KBLU   "\x1B[34m"
-#define KMAG   "\x1B[35m"
-#define KCYN   "\x1B[36m"
-#define KWHT   "\x1B[37m"
-#define KRESET "\033[0m"
-
 typedef struct Response {
     char *data;
     size_t size;
@@ -45,7 +35,9 @@ void Quotes_add(Quotes *quotes, Indicator indicator) {
 
 void Quotes_cleanup(Quotes *quotes) {
     free(quotes->indicators);
+    quotes->indicators = NULL;
     free(quotes);
+    quotes = NULL;
 }
 
 Quotes* Quotes_create(char *json_string) {
@@ -56,6 +48,7 @@ Quotes* Quotes_create(char *json_string) {
 
     cJSON *json_object = cJSON_Parse(json_string);
     free(json_string);
+    json_string = NULL;
     json_object = cJSON_GetObjectItem(json_object, "chart");
     json_object = cJSON_GetObjectItem(json_object, "result");
     json_object = cJSON_GetArrayItem(json_object, 0);
@@ -127,6 +120,10 @@ char* request_get(char *url) {
 }
 
 void print_data(Quotes *quotes) {
+    const char color_red[] = "\x1B[31m";
+    const char color_green[] = "\x1B[32m";
+    const char color_reset[] = "\033[0m";
+
     printf("Symbol: %s\n", quotes->symbol);
     printf("Currency: %s\n", quotes->currency);
     printf("Size: %zu\n", quotes->size);
@@ -138,9 +135,9 @@ void print_data(Quotes *quotes) {
         if (quotes->indicators[i].open != 0) {
             char color[10];
             if (quotes->indicators[i].open > quotes->indicators[i].close) {
-                strcpy(color, KRED);
+                strcpy(color, color_red);
             } else {
-                strcpy(color, KGRN);
+                strcpy(color, color_green);
             }
 
             printf("%s|%.4f|%.4f|%.4f|%.4f|%s %s",
@@ -149,7 +146,7 @@ void print_data(Quotes *quotes) {
                     quotes->indicators[i].high,
                     quotes->indicators[i].low,
                     quotes->indicators[i].close,
-                    KRESET,
+                    color_reset,
                     ctime(&quotes->indicators[i].timestamp)
                   );
         }
