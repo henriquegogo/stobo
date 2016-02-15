@@ -1,9 +1,10 @@
+SRC = $(wildcard *.c)
 LIBS = $(wildcard libs/*/*.c)
 CFLAGS = -std=c99 -Ilibs -Wall -lm -lcurl
 STANDALONEFLAGS = -Wl,-rpath=libs -Llibs
 
 all:
-	$(CC) -o stobo *.c $(LIBS) $(CFLAGS)
+	$(CC) -o stobo $(SRC) $(LIBS) $(CFLAGS)
 
 standalone:
-	$(CC) -o stobo-standalone *.c $(LIBS) $(CFLAGS) $(STANDALONEFLAGS) 
+	$(CC) -o stobo-standalone $(SRC) $(LIBS) $(CFLAGS) $(STANDALONEFLAGS) 
