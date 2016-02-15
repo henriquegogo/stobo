@@ -4,9 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <cJSON/cJSON.h>
 
-#include "indicator.h"
+typedef struct Indicator {
+    time_t timestamp;
+    int volume;
+    double low;
+    double high;
+    double open;
+    double close;
+} Indicator;
 
 typedef struct Quotes {
     char symbol[12];

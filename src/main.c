@@ -6,7 +6,6 @@
 #include "request.h"
 #include "print.h"
 
-
 int main() {
     char url[] = "https://finance-yql.media.yahoo.com/v7/finance/chart/USDBRL=X?period1=1454583600&period2=1454616300&interval=1m";
 
