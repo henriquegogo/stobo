@@ -5,8 +5,8 @@ include/
 lib/
 man/
 share/
-main
-main.exe
-main-standalone*
+stobo
+stobo.exe
+stobo-standalone*
 .ycm_extra_conf.pyc
 *.so*

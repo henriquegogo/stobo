@@ -3,7 +3,7 @@ CFLAGS = -std=c99 -Ilibs -Wall -lm -lcurl
 STANDALONEFLAGS = -Wl,-rpath=libs -Llibs
 
 all:
-	$(CC) -o main main.c $(LIBS) $(CFLAGS)
+	$(CC) -o stobo *.c $(LIBS) $(CFLAGS)
 
 standalone:
-	$(CC) -o main-standalone main.c $(LIBS) $(CFLAGS) $(STANDALONEFLAGS) 
+	$(CC) -o stobo-standalone *.c $(LIBS) $(CFLAGS) $(STANDALONEFLAGS) 
