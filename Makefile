@@ -1,4 +1,4 @@
-SRC = $(wildcard *.c)
+SRC = $(wildcard src/*.c)
 LIBS = $(wildcard libs/*/*.c)
 CFLAGS = -std=c99 -Ilibs -Wall -lm -lcurl
 STANDALONEFLAGS = -Wl,-rpath=libs -Llibs
