@@ -1,10 +1,3 @@
-bin/
-data/
-etc/
-include/
-lib/
-man/
-share/
 stobo
 stobo.exe
 stobo-standalone*
