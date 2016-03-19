@@ -43,6 +43,21 @@ function Stock(name) {
 Stock.prototype = Indicators.prototype;
 
 function Indicators() {}
+Indicators.prototype.ticksWithIndicators = function(indicators) {
+  var ticksWithIndicators = [];
+
+  this.ticks.forEach(function(value) {
+    ticksWithIndicators.push( JSON.parse(JSON.stringify(value)) );
+  });
+
+  for (var i in ticksWithIndicators) {
+    for (var key in indicators) {
+      ticksWithIndicators[i][key] = indicators[key][i];
+    }
+  }
+
+  return ticksWithIndicators;
+}
 Indicators.prototype.ma = function(period) {
   var output = [];
   var period = period || 12;
@@ -56,10 +71,14 @@ Indicators.prototype.ma = function(period) {
       ma = ma / period;
       output.push(ma.toFixed(4));
     }
+    else {
+      output.push(0.0000);
+    }
   }
 
   return output;
 }
 
 var stock = new Stock('WDO');
-console.log(stock.ma(20) );
+console.log( stock );
+console.log( stock.ticksWithIndicators({ ma8: stock.ma(8), ma20: stock.ma(20) }) );
