@@ -79,6 +79,23 @@ Indicators.prototype.ma = function(period) {
   return output;
 }
 
+function tester(stock) {
+  function buy(price) {
+    console.log('Buy: ' + price);
+  }
+
+  function sell(price) {
+    console.log('Sell: ' + price);
+  }
+
+  var ticks = stock.ticksWithIndicators({ ma8: stock.ma(8), ma20: stock.ma(20) });
+  for (var i in ticks) {
+    if ( ticks[i].ma8 == ticks[i].ma20 != 0 ) {
+      if ( ticks[i-1] && ticks[i-1].ma8 < ticks[i].ma8 ) buy(ticks[i].low);
+      if ( ticks[i-1] && ticks[i-1].ma8 > ticks[i].ma8 ) sell(ticks[i].high);
+    }
+  }
+}
+
 var stock = new Stock('WDO');
-console.log( stock );
-console.log( stock.ticksWithIndicators({ ma8: stock.ma(8), ma20: stock.ma(20) }) );
+tester(stock);
